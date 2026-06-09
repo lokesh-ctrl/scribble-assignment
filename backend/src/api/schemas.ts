@@ -20,6 +20,11 @@ export const startGameQuerySchema = z.object({
   participantId: z.string()
 });
 
+export const submitGuessSchema = z.object({
+  participantId: z.string(),
+  text: z.string().trim().min(1, "Guess cannot be empty.")
+});
+
 export class HttpError extends Error {
   statusCode: number;
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createRoom, joinRoom, startGame, toRoomSnapshot } from "./roomStore.js";
+import { createRoom, joinRoom, startGame, submitGuess, toRoomSnapshot } from "./roomStore.js";
 
 describe("roomStore", () => {
   it("createRoom returns a room with a 4-character uppercase code", () => {
@@ -85,5 +85,111 @@ describe("roomStore", () => {
 
     expect(snapshot1!.secretWord).toBe(snapshot2!.secretWord);
     expect(snapshot1!.secretWord).toBe("rocket");
+  });
+
+  it("startGame initializes scores to 0 for all participants", () => {
+    const created = createRoom("Alice");
+    const joined = joinRoom(created.room.code, "Bob");
+    const snapshot = startGame(created.room.code, created.participantId);
+
+    expect(snapshot!.scores[created.participantId]).toBe(0);
+    expect(snapshot!.scores[joined!.participantId]).toBe(0);
+  });
+
+  it("startGame initializes guesses to empty array", () => {
+    const created = createRoom("Alice");
+    joinRoom(created.room.code, "Bob");
+    const snapshot = startGame(created.room.code, created.participantId);
+
+    expect(snapshot!.guesses).toEqual([]);
+  });
+
+  it("toRoomSnapshot includes scores and guesses for all viewers", () => {
+    const created = createRoom("Alice");
+    const joined = joinRoom(created.room.code, "Bob");
+    startGame(created.room.code, created.participantId);
+
+    const snapshot = toRoomSnapshot(
+      {
+        ...created.room,
+        status: "active",
+        drawerId: created.participantId,
+        secretWord: "rocket",
+        scores: { [created.participantId]: 0, [joined!.participantId]: 0 },
+        guesses: []
+      },
+      joined!.participantId
+    );
+
+    expect(snapshot.scores).toBeDefined();
+    expect(snapshot.guesses).toEqual([]);
+  });
+
+  it("submitGuess awards 100 points for a correct guess (case-insensitive)", () => {
+    const created = createRoom("Alice");
+    const joined = joinRoom(created.room.code, "Bob");
+    startGame(created.room.code, created.participantId);
+
+    const result = submitGuess(created.room.code, joined!.participantId, "ROCKET");
+
+    expect(result).not.toBeNull();
+    expect(result!.guess.isCorrect).toBe(true);
+    expect(result!.scoreAwarded).toBe(100);
+    expect(result!.snapshot.scores[joined!.participantId]).toBe(100);
+  });
+
+  it("submitGuess awards 0 points for an incorrect guess but records it", () => {
+    const created = createRoom("Alice");
+    const joined = joinRoom(created.room.code, "Bob");
+    startGame(created.room.code, created.participantId);
+
+    const result = submitGuess(created.room.code, joined!.participantId, "pizza");
+
+    expect(result).not.toBeNull();
+    expect(result!.guess.isCorrect).toBe(false);
+    expect(result!.scoreAwarded).toBe(0);
+    expect(result!.snapshot.scores[joined!.participantId]).toBe(0);
+    expect(result!.snapshot.guesses).toHaveLength(1);
+    expect(result!.snapshot.guesses[0].text).toBe("pizza");
+  });
+
+  it("submitGuess rejects empty text", () => {
+    const created = createRoom("Alice");
+    const joined = joinRoom(created.room.code, "Bob");
+    startGame(created.room.code, created.participantId);
+
+    const result = submitGuess(created.room.code, joined!.participantId, "");
+
+    expect(result).toBeNull();
+  });
+
+  it("submitGuess rejects whitespace-only text", () => {
+    const created = createRoom("Alice");
+    const joined = joinRoom(created.room.code, "Bob");
+    startGame(created.room.code, created.participantId);
+
+    const result = submitGuess(created.room.code, joined!.participantId, "   ");
+
+    expect(result).toBeNull();
+  });
+
+  it("submitGuess accumulates score across multiple correct guesses", () => {
+    const created = createRoom("Alice");
+    const joined = joinRoom(created.room.code, "Bob");
+    startGame(created.room.code, created.participantId);
+
+    submitGuess(created.room.code, joined!.participantId, "rocket");
+    const result = submitGuess(created.room.code, joined!.participantId, "Rocket");
+
+    expect(result!.snapshot.scores[joined!.participantId]).toBe(200);
+  });
+
+  it("submitGuess handles mixed-case variations as correct", () => {
+    const created = createRoom("Alice");
+    const joined = joinRoom(created.room.code, "Bob");
+    startGame(created.room.code, created.participantId);
+
+    const lower = submitGuess(created.room.code, joined!.participantId, "rocket");
+    expect(lower!.guess.isCorrect).toBe(true);
   });
 });

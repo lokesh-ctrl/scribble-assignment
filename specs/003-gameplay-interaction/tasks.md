@@ -21,13 +21,13 @@ description: "Task list for Gameplay Interaction"
 
 **Purpose**: Extend the data model and room store — all user stories depend on this.
 
-- [ ] T001 Add `Guess` interface (`participantId`, `text`, `isCorrect`, `submittedAt`) to `backend/src/models/game.ts`
-- [ ] T002 Add `scores: Record<string, number>` and `guesses: Guess[]` to `Room` interface in `backend/src/models/game.ts`
-- [ ] T003 Add `scores: Record<string, number>` and `guesses: Guess[]` to `RoomSnapshot` interface in `backend/src/models/game.ts`
-- [ ] T004 [P] Add `Guess` interface and extend `RoomSnapshot` with `scores` and `guesses` in `frontend/src/services/api.ts`
-- [ ] T005 Initialize `scores` (all participants set to `0`) and `guesses` (`[]`) in `startGame()` in `backend/src/services/roomStore.ts`
-- [ ] T006 Extend `toRoomSnapshot()` in `backend/src/services/roomStore.ts` to always include `scores` and `guesses` in the returned snapshot
-- [ ] T007 [P] Add unit tests for `startGame()` score/guess initialization and `toRoomSnapshot()` returning `scores` + `guesses` in `backend/src/services/roomStore.test.ts`
+- [x] T001 Add `Guess` interface (`participantId`, `text`, `isCorrect`, `submittedAt`) to `backend/src/models/game.ts`
+- [x] T002 Add `scores: Record<string, number>` and `guesses: Guess[]` to `Room` interface in `backend/src/models/game.ts`
+- [x] T003 Add `scores: Record<string, number>` and `guesses: Guess[]` to `RoomSnapshot` interface in `backend/src/models/game.ts`
+- [x] T004 [P] Add `Guess` interface and extend `RoomSnapshot` with `scores` and `guesses` in `frontend/src/services/api.ts`
+- [x] T005 Initialize `scores` (all participants set to `0`) and `guesses` (`[]`) in `startGame()` in `backend/src/services/roomStore.ts`
+- [x] T006 Extend `toRoomSnapshot()` in `backend/src/services/roomStore.ts` to always include `scores` and `guesses` in the returned snapshot
+- [x] T007 [P] Add unit tests for `startGame()` score/guess initialization and `toRoomSnapshot()` returning `scores` + `guesses` in `backend/src/services/roomStore.test.ts`
 
 **Checkpoint**: `npm test` in backend passes. `POST /api/rooms/:code/start` response includes `scores: { [id]: 0, ... }` and `guesses: []`. `GET /api/rooms/:code?participantId=<id>` also returns these fields.
 
@@ -39,8 +39,8 @@ description: "Task list for Gameplay Interaction"
 
 **Independent Test**: Open the game as the drawer. Draw lines on the canvas — confirm the drawing appears. Click Clear — confirm the canvas is blank. No backend changes are needed to validate this story.
 
-- [ ] T008 [US1] Create `DrawingCanvas` component in `frontend/src/components/DrawingCanvas.tsx` — HTML5 `<canvas>` with `pointerdown`/`pointermove`/`pointerup` draw handlers, a "Clear" button that calls `ctx.clearRect()`, `aria-label="Drawing canvas"` on the canvas element, and `role="button"` + `onKeyDown` support on the Clear button for WCAG 2.1 AA keyboard accessibility
-- [ ] T009 [US1] Replace the canvas placeholder `<div>` in `frontend/src/pages/GamePage.tsx` with `<DrawingCanvas />` rendered when `isDrawer`; show a static `<p>Waiting for drawer...</p>` for guessers in the same slot
+- [x] T008 [US1] Create `DrawingCanvas` component in `frontend/src/components/DrawingCanvas.tsx` — HTML5 `<canvas>` with `pointerdown`/`pointermove`/`pointerup` draw handlers, a "Clear" button that calls `ctx.clearRect()`, `aria-label="Drawing canvas"` on the canvas element, and `role="button"` + `onKeyDown` support on the Clear button for WCAG 2.1 AA keyboard accessibility
+- [x] T009 [US1] Replace the canvas placeholder `<div>` in `frontend/src/pages/GamePage.tsx` with `<DrawingCanvas />` rendered when `isDrawer`; show a static `<p>Waiting for drawer...</p>` for guessers in the same slot
 
 **Checkpoint**: Drawer tab renders a white canvas they can draw on and clear. Guesser tab shows the "Waiting for drawer..." message. No regressions on role badge, secret word display, or participant list.
 
@@ -52,13 +52,13 @@ description: "Task list for Gameplay Interaction"
 
 **Independent Test**: As guesser, submit whitespace — expect rejection. Submit "ROCKET" (uppercase) when secret word is "rocket" — expect score increases from 0 to 100. Submit "pizza" — expect score stays at 100 and guess is recorded.
 
-- [ ] T010 Add `submitGuessSchema` to `backend/src/api/schemas.ts` — `z.object({ participantId: z.string(), text: z.string().trim().min(1, "Guess cannot be empty.") })`
-- [ ] T011 Add `submitGuess(code: string, participantId: string, text: string)` to `backend/src/services/roomStore.ts` — validates room is `active`, trims text, compares `text.toLowerCase() === room.secretWord!.toLowerCase()`, sets `isCorrect`, increments `scores[participantId]` by 100 if correct (initializes to 0 if missing), appends `Guess` to `room.guesses`, returns `{ guess, scoreAwarded, snapshot }`
-- [ ] T012 [P] Add unit tests for `submitGuess()` in `backend/src/services/roomStore.test.ts` — cover: empty/whitespace rejection, correct guess (case-insensitive: "ROCKET", "Rocket", "rocket"), incorrect guess (0 points, still recorded), score accumulates across multiple correct guesses
-- [ ] T013 [US2] Add `POST /:code/guess` route in `backend/src/api/rooms.ts` — parse `submitGuessSchema` from `request.body`, call `submitGuess()`, return `{ guess, scoreAwarded, room: snapshot }` on success; 404 if room not found; 400 if room not active
-- [ ] T014 [P] [US2] Add `api.submitGuess(code: string, participantId: string, text: string)` method to `frontend/src/services/api.ts` — `POST /rooms/:code/guess` returning `{ guess: Guess, scoreAwarded: number, room: RoomSnapshot }`
-- [ ] T015 [US2] Add `submitGuess(text: string): Promise<void>` method to `RoomStore` in `frontend/src/state/roomStore.ts` — validates non-empty client-side, calls `api.submitGuess(room.code, participantId, text)`, calls `setRoomSnapshot(response.room)` on success, sets `error` on failure
-- [ ] T016 [US2] Wire `GuessForm` in `frontend/src/components/GuessForm.tsx` — call `useRoomStore().submitGuess(guessText)` on form submit; show inline error message if the store's `error` is set; clear the input on successful submission; disable the button while `isLoading`
+- [x] T010 Add `submitGuessSchema` to `backend/src/api/schemas.ts` — `z.object({ participantId: z.string(), text: z.string().trim().min(1, "Guess cannot be empty.") })`
+- [x] T011 Add `submitGuess(code: string, participantId: string, text: string)` to `backend/src/services/roomStore.ts` — validates room is `active`, trims text, compares `text.toLowerCase() === room.secretWord!.toLowerCase()`, sets `isCorrect`, increments `scores[participantId]` by 100 if correct (initializes to 0 if missing), appends `Guess` to `room.guesses`, returns `{ guess, scoreAwarded, snapshot }`
+- [x] T012 [P] Add unit tests for `submitGuess()` in `backend/src/services/roomStore.test.ts` — cover: empty/whitespace rejection, correct guess (case-insensitive: "ROCKET", "Rocket", "rocket"), incorrect guess (0 points, still recorded), score accumulates across multiple correct guesses
+- [x] T013 [US2] Add `POST /:code/guess` route in `backend/src/api/rooms.ts` — parse `submitGuessSchema` from `request.body`, call `submitGuess()`, return `{ guess, scoreAwarded, room: snapshot }` on success; 404 if room not found; 400 if room not active
+- [x] T014 [P] [US2] Add `api.submitGuess(code: string, participantId: string, text: string)` method to `frontend/src/services/api.ts` — `POST /rooms/:code/guess` returning `{ guess: Guess, scoreAwarded: number, room: RoomSnapshot }`
+- [x] T015 [US2] Add `submitGuess(text: string): Promise<void>` method to `RoomStore` in `frontend/src/state/roomStore.ts` — validates non-empty client-side, calls `api.submitGuess(room.code, participantId, text)`, calls `setRoomSnapshot(response.room)` on success, sets `error` on failure
+- [x] T016 [US2] Wire `GuessForm` in `frontend/src/components/GuessForm.tsx` — call `useRoomStore().submitGuess(guessText)` on form submit; show inline error message if the store's `error` is set; clear the input on successful submission; disable the button while `isLoading`
 
 **Checkpoint**: Guesser submits "" → validation message appears, no guess recorded. Submits "ROCKET" → score becomes 100 in the next poll. Submits "pizza" → score unchanged, guess appears in subsequent poll.
 
@@ -70,9 +70,9 @@ description: "Task list for Gameplay Interaction"
 
 **Independent Test**: Two tabs open (drawer + guesser). Guesser submits a guess. Within ≤ 3 seconds, both tabs show the guess in the history. Both tabs show the updated score.
 
-- [ ] T017 [P] [US3] Update `Scoreboard` in `frontend/src/components/Scoreboard.tsx` — accept `room: RoomSnapshot` prop (or use `useRoomState()`), render a list of participant names with their score from `room.scores`; show "0" for participants not yet in the scores map; order by score descending
-- [ ] T018 [P] [US3] Update `ResultPanel` in `frontend/src/components/ResultPanel.tsx` — accept `room: RoomSnapshot` prop (or use `useRoomState()`), render `room.guesses` as a list showing guesser name (look up from `room.participants`), guess text, and a ✓/✗ indicator for `isCorrect`; newest guesses at the top; use semantic `<ul>/<li>` for screen-reader compatibility
-- [ ] T019 [US3] Update `GamePage.tsx` in `frontend/src/pages/GamePage.tsx` to pass `room` to `<Scoreboard />` and `<ResultPanel />` now that both components consume live room data
+- [x] T017 [P] [US3] Update `Scoreboard` in `frontend/src/components/Scoreboard.tsx` — accept `room: RoomSnapshot` prop (or use `useRoomState()`), render a list of participant names with their score from `room.scores`; show "0" for participants not yet in the scores map; order by score descending
+- [x] T018 [P] [US3] Update `ResultPanel` in `frontend/src/components/ResultPanel.tsx` — accept `room: RoomSnapshot` prop (or use `useRoomState()`), render `room.guesses` as a list showing guesser name (look up from `room.participants`), guess text, and a ✓/✗ indicator for `isCorrect`; newest guesses at the top; use semantic `<ul>/<li>` for screen-reader compatibility
+- [x] T019 [US3] Update `GamePage.tsx` in `frontend/src/pages/GamePage.tsx` to pass `room` to `<Scoreboard />` and `<ResultPanel />` now that both components consume live room data
 
 **Checkpoint**: Drawer and guesser tabs both show updated scores and guess history within the 2-second polling interval after each guess. No regressions on canvas or guess submission.
 
@@ -80,10 +80,10 @@ description: "Task list for Gameplay Interaction"
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T020 [P] Run `npm test` in `backend/` — confirm all tests pass including T007 and T012 assertions
-- [ ] T021 [P] Run `npm test` in `frontend/` — confirm no regressions in existing tests
-- [ ] T022 Verify `DrawingCanvas` Clear button is reachable by Tab key and activatable by Enter/Space in `frontend/src/components/DrawingCanvas.tsx` (WCAG 2.1 AA)
-- [ ] T023 Run Quickstart Scenarios A–E from `specs/003-gameplay-interaction/quickstart.md` manually to confirm all end-to-end paths work
+- [x] T020 [P] Run `npm test` in `backend/` — confirm all tests pass including T007 and T012 assertions
+- [x] T021 [P] Run `npm test` in `frontend/` — confirm no regressions in existing tests
+- [x] T022 Verify `DrawingCanvas` Clear button is reachable by Tab key and activatable by Enter/Space in `frontend/src/components/DrawingCanvas.tsx` (WCAG 2.1 AA)
+- [x] T023 Run Quickstart Scenarios A–E from `specs/003-gameplay-interaction/quickstart.md` manually to confirm all end-to-end paths work
 
 ---
 

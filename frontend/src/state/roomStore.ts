@@ -125,6 +125,21 @@ class RoomStore {
     this.stopPolling();
     return response.room;
   }
+
+  async submitGuess(text: string) {
+    const trimmed = text.trim();
+    if (!trimmed) {
+      this.setState({ error: "Guess cannot be empty." });
+      return null;
+    }
+    if (!this.state.room || !this.state.participantId) return null;
+
+    const response = await this.withLoading(() =>
+      api.submitGuess(this.state.room!.code, this.state.participantId!, trimmed)
+    );
+    this.setRoomSnapshot(response.room);
+    return response;
+  }
 }
 
 const RoomStoreContext = createContext<RoomStore | null>(null);
