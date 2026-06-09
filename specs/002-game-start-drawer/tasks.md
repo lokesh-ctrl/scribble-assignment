@@ -21,13 +21,13 @@ description: "Task list for Game Start & Drawer Flow"
 
 **Purpose**: Extend the Room model and snapshot logic — all user stories depend on this.
 
-- [ ] T001 Add `drawerId: string | null` and `secretWord: string | null` to `Room` interface in `backend/src/models/game.ts`
-- [ ] T002 Add `drawerId: string | null` and `secretWord: string | null` to `RoomSnapshot` interface in `backend/src/models/game.ts`
-- [ ] T003 [P] Update `RoomSnapshot` type in `frontend/src/services/api.ts` to add `drawerId: string | null` and `secretWord: string | null`
-- [ ] T004 Initialize `drawerId: null` and `secretWord: null` in `createRoom()` in `backend/src/services/roomStore.ts`
-- [ ] T005 Set `drawerId = room.hostId` and `secretWord = STARTER_WORDS[0]` in the `startGame()` function in `backend/src/services/roomStore.ts`
-- [ ] T006 Activate viewer-specific logic in `toRoomSnapshot()` in `backend/src/services/roomStore.ts` — include `drawerId` always; include `secretWord` only when `viewerParticipantId === room.drawerId`, otherwise `null`
-- [ ] T007 [P] Add unit tests for drawer assignment, word selection, and viewer-specific snapshot in `backend/src/services/roomStore.test.ts`
+- [x] T001 Add `drawerId: string | null` and `secretWord: string | null` to `Room` interface in `backend/src/models/game.ts`
+- [x] T002 Add `drawerId: string | null` and `secretWord: string | null` to `RoomSnapshot` interface in `backend/src/models/game.ts`
+- [x] T003 [P] Update `RoomSnapshot` type in `frontend/src/services/api.ts` to add `drawerId: string | null` and `secretWord: string | null`
+- [x] T004 Initialize `drawerId: null` and `secretWord: null` in `createRoom()` in `backend/src/services/roomStore.ts`
+- [x] T005 Set `drawerId = room.hostId` and `secretWord = STARTER_WORDS[0]` in the `startGame()` function in `backend/src/services/roomStore.ts`
+- [x] T006 Activate viewer-specific logic in `toRoomSnapshot()` in `backend/src/services/roomStore.ts` — include `drawerId` always; include `secretWord` only when `viewerParticipantId === room.drawerId`, otherwise `null`
+- [x] T007 [P] Add unit tests for drawer assignment, word selection, and viewer-specific snapshot in `backend/src/services/roomStore.test.ts`
 
 **Checkpoint**: `npm test` in backend passes. `POST /api/rooms/:code/start` returns `drawerId` and `secretWord`. `GET /api/rooms/:code?participantId=<drawerId>` returns secret word; same request with a guesser's id returns `secretWord: null`.
 
@@ -39,7 +39,7 @@ description: "Task list for Game Start & Drawer Flow"
 
 **Independent Test**: Host creates room, guest joins, host starts. Verify `drawerId === hostId` and `secretWord === "rocket"` in the API response.
 
-- [ ] T008 [US1] Confirm `startGame()` in `backend/src/services/roomStore.ts` is already called by the existing `POST /:code/start` handler — no route change needed; verify the handler passes return value through correctly in `backend/src/api/rooms.ts`
+- [x] T008 [US1] Confirm `startGame()` in `backend/src/services/roomStore.ts` is already called by the existing `POST /:code/start` handler — no route change needed; verify the handler passes return value through correctly in `backend/src/api/rooms.ts`
 
 **Checkpoint**: Start API response includes `drawerId: <hostUUID>` and `secretWord: "rocket"`.
 
@@ -51,7 +51,7 @@ description: "Task list for Game Start & Drawer Flow"
 
 **Independent Test**: Start two independent games; both receive `secretWord: "rocket"` in the drawer's snapshot.
 
-- [ ] T009 [US2] [P] Verify `STARTER_WORDS` import is used (not a local copy) in `backend/src/services/roomStore.ts` — confirm `startGame` sets `secretWord = listWords()[0]` (using the existing `listWords()` helper) so the source of truth is single
+- [x] T009 [US2] [P] Verify `STARTER_WORDS` import is used (not a local copy) in `backend/src/services/roomStore.ts` — confirm `startGame` sets `secretWord = listWords()[0]` (using the existing `listWords()` helper) so the source of truth is single
 
 **Checkpoint**: `listWords()[0]` always returns `"rocket"`. Two separate game starts produce the same word.
 
@@ -63,11 +63,11 @@ description: "Task list for Game Start & Drawer Flow"
 
 **Independent Test**: Two browser tabs — drawer sees "Drawer" badge + "rocket"; guesser sees "Guesser" badge + no word shown.
 
-- [ ] T010 [US3] Update `GamePage.tsx` in `frontend/src/pages/GamePage.tsx` — derive `isDrawer = participantId === room.drawerId` from room state
-- [ ] T011 [US3] Display role badge in `frontend/src/pages/GamePage.tsx` — show "Drawer" if `isDrawer`, "Guesser" otherwise, in the Player Info card
-- [ ] T012 [US3] Show secret word prominently to the drawer in `frontend/src/pages/GamePage.tsx` — display `room.secretWord` when `isDrawer && room.secretWord`; show nothing (no label, no hint) to guessers
-- [ ] T013 [US3] Mark the drawer in the scoreboard/participant area in `frontend/src/pages/GamePage.tsx` — add a "Drawing" label next to the participant whose `id === room.drawerId`
-- [ ] T014 [US3] [P] Update `GamePage.tsx` to start polling every 2s on mount (same pattern as LobbyPage) in `frontend/src/pages/GamePage.tsx` — call `roomStore.startPolling(2000)` on mount, `stopPolling()` on unmount so role/state stays fresh
+- [x] T010 [US3] Update `GamePage.tsx` in `frontend/src/pages/GamePage.tsx` — derive `isDrawer = participantId === room.drawerId` from room state
+- [x] T011 [US3] Display role badge in `frontend/src/pages/GamePage.tsx` — show "Drawer" if `isDrawer`, "Guesser" otherwise, in the Player Info card
+- [x] T012 [US3] Show secret word prominently to the drawer in `frontend/src/pages/GamePage.tsx` — display `room.secretWord` when `isDrawer && room.secretWord`; show nothing (no label, no hint) to guessers
+- [x] T013 [US3] Mark the drawer in the scoreboard/participant area in `frontend/src/pages/GamePage.tsx` — add a "Drawing" label next to the participant whose `id === room.drawerId`
+- [x] T014 [US3] [P] Update `GamePage.tsx` to start polling every 2s on mount (same pattern as LobbyPage) in `frontend/src/pages/GamePage.tsx` — call `roomStore.startPolling(2000)` on mount, `stopPolling()` on unmount so role/state stays fresh
 
 **Checkpoint**: Drawer tab shows "Drawer" + "rocket"; guesser tab shows "Guesser" with no word. "Drawing" label visible on both tabs next to the drawer's name.
 
@@ -75,9 +75,9 @@ description: "Task list for Game Start & Drawer Flow"
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T015 [P] Run `npm test` in both `backend/` and `frontend/` — confirm all tests pass
-- [ ] T016 [P] Verify role badges use text (not colour-only) for WCAG 2.1 AA compliance in `frontend/src/pages/GamePage.tsx`
-- [ ] T017 Run quickstart Scenario A and B from `specs/002-game-start-drawer/quickstart.md` manually
+- [x] T015 [P] Run `npm test` in both `backend/` and `frontend/` — confirm all tests pass
+- [x] T016 [P] Verify role badges use text (not colour-only) for WCAG 2.1 AA compliance in `frontend/src/pages/GamePage.tsx`
+- [x] T017 Run quickstart Scenario A and B from `specs/002-game-start-drawer/quickstart.md` manually
 
 ---
 

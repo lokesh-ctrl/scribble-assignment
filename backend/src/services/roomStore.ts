@@ -55,6 +55,8 @@ export function createRoom(playerName?: string) {
     code: generateUniqueCode(),
     status: "lobby",
     hostId: participant.id,
+    drawerId: null,
+    secretWord: null,
     participants: [participant],
     createdAt: now(),
     updatedAt: now()
@@ -103,18 +105,22 @@ export function startGame(code: string, participantId: string): RoomSnapshot | n
   if (room.hostId !== participantId) return null;
   if (room.participants.length < 2) return null;
   room.status = "active";
+  room.drawerId = room.hostId;
+  room.secretWord = listWords()[0];
   room.updatedAt = now();
   rooms.set(room.code, room);
-  return toRoomSnapshot(room);
+  return toRoomSnapshot(room, participantId);
 }
 
 export function toRoomSnapshot(room: Room, viewerParticipantId?: string): RoomSnapshot {
-  void viewerParticipantId;
+  const isDrawer = viewerParticipantId !== undefined && viewerParticipantId === room.drawerId;
 
   return {
     code: room.code,
     status: room.status,
     hostId: room.hostId,
+    drawerId: room.drawerId,
+    secretWord: isDrawer ? room.secretWord : null,
     participants: room.participants.map((participant) => ({ ...participant })),
     availableWords: listWords(),
     roles: [...STARTER_ROLES]
