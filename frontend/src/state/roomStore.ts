@@ -27,6 +27,7 @@ class RoomStore {
   };
 
   private listeners = new Set<Listener>();
+  private pollingTimer: ReturnType<typeof setInterval> | null = null;
 
   subscribe = (listener: Listener) => {
     this.listeners.add(listener);
@@ -96,6 +97,32 @@ class RoomStore {
 
     const response = await api.fetchRoom(this.state.room.code, this.state.participantId ?? undefined);
     this.setRoomSnapshot(response.room);
+    return response.room;
+  }
+
+  startPolling(intervalMs: number) {
+    this.stopPolling();
+    this.pollingTimer = setInterval(() => {
+      if (this.state.room) {
+        void this.fetchRoom();
+      }
+    }, intervalMs);
+  }
+
+  stopPolling() {
+    if (this.pollingTimer !== null) {
+      clearInterval(this.pollingTimer);
+      this.pollingTimer = null;
+    }
+  }
+
+  async startGame(participantId: string) {
+    if (!this.state.room) return null;
+    const response = await this.withLoading(() =>
+      api.startGame(this.state.room!.code, participantId)
+    );
+    this.setRoomSnapshot(response.room);
+    this.stopPolling();
     return response.room;
   }
 }

@@ -54,6 +54,7 @@ export function createRoom(playerName?: string) {
   const room: Room = {
     code: generateUniqueCode(),
     status: "lobby",
+    hostId: participant.id,
     participants: [participant],
     createdAt: now(),
     updatedAt: now()
@@ -68,7 +69,7 @@ export function createRoom(playerName?: string) {
 }
 
 export function joinRoom(code: string, playerName?: string) {
-  const room = rooms.get(code);
+  const room = rooms.get(code.toUpperCase());
 
   if (!room) {
     return null;
@@ -96,12 +97,24 @@ export function saveRoom(room: Room) {
   return getRoom(room.code);
 }
 
+export function startGame(code: string, participantId: string): RoomSnapshot | null {
+  const room = rooms.get(code.toUpperCase());
+  if (!room) return null;
+  if (room.hostId !== participantId) return null;
+  if (room.participants.length < 2) return null;
+  room.status = "active";
+  room.updatedAt = now();
+  rooms.set(room.code, room);
+  return toRoomSnapshot(room);
+}
+
 export function toRoomSnapshot(room: Room, viewerParticipantId?: string): RoomSnapshot {
   void viewerParticipantId;
 
   return {
     code: room.code,
     status: room.status,
+    hostId: room.hostId,
     participants: room.participants.map((participant) => ({ ...participant })),
     availableWords: listWords(),
     roles: [...STARTER_ROLES]

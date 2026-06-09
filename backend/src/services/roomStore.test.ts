@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createRoom, joinRoom } from "./roomStore.js";
+import { createRoom, joinRoom, toRoomSnapshot } from "./roomStore.js";
 
 describe("roomStore", () => {
   it("createRoom returns a room with a 4-character uppercase code", () => {
@@ -15,5 +15,27 @@ describe("roomStore", () => {
     const result = joinRoom("ZZZZ", "Bob");
 
     expect(result).toBeNull();
+  });
+
+  it("createRoom sets hostId to the creator participant id", () => {
+    const result = createRoom("Alice");
+
+    expect(result.room.hostId).toBe(result.participantId);
+  });
+
+  it("toRoomSnapshot includes hostId", () => {
+    const result = createRoom("Alice");
+    const snapshot = toRoomSnapshot(result.room);
+
+    expect(snapshot.hostId).toBe(result.participantId);
+  });
+
+  it("joinRoom is case-insensitive for room code", () => {
+    const created = createRoom("Alice");
+    const lowercaseCode = created.room.code.toLowerCase();
+    const joined = joinRoom(lowercaseCode, "Bob");
+
+    expect(joined).not.toBeNull();
+    expect(joined!.room.participants).toHaveLength(2);
   });
 });
