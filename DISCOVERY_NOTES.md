@@ -3,4 +3,4 @@ After checking the code its making the request to http://localhost:3001/bug/room
 
 -> Join room also showing `Route not found` error when trying to join a room that doesn't exist. Its also making request to similar bug endpoint. http://localhost:3001/bug/rooms/ASDF/join
 
--> API base URL has /bug instead of /api.
+-> Root cause: API base URL has /bug instead of /api.
